@@ -1,6 +1,6 @@
 name: Run tests with Gradle
 
-on:  
+on:
   push:
   pull_request:
     branches:
@@ -9,33 +9,39 @@ on:
 permissions:
   contents: read
 
+env:
+  java_version: '17'
+  java_distribution: 'temurin'
+  java_package_manager: 'gradle'
+
 jobs:
   test:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up JDK 11
-        uses: actions/setup-java@v3
+      - uses: actions/checkout@v4
+      - name: Set up JDK ${{ env.java_version }}
+        uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'gradle'
+          java-version: ${{ env.java_version }}
+          distribution: ${{ env.java_distribution }}
+          cache: ${{ env.java_package_manager }}
       - name: Run tests
         run: ./gradlew test
+
   publish:
     needs:
       - test
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up JDK 11
-        uses: actions/setup-java@v3
+      - uses: actions/checkout@v4
+      - name: Set up JDK ${{ env.java_version }}
+        uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'gradle'
+          java-version: ${{ env.java_version }}
+          distribution: ${{ env.java_distribution }}
+          cache: ${{ env.java_package_manager }}
       - name: Publish plugin
         run: ./gradlew :thrift:publishPlugin
         env:
-          JETBRAINS_TOKEN: ${{ secrets.JETBRAINS_TOKEN }}        
+          JETBRAINS_TOKEN: ${{ secrets.JETBRAINS_TOKEN }}
